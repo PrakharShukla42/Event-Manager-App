@@ -1,16 +1,76 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
+import API from '../api/api';
+import { useEffect, useState } from 'react';
 
 export default function Navbar() {
+    const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [role, setRole] = useState(null);
+
+    const updateAuth = () => {
+        const status = localStorage.getItem('isLoggedIn') === 'true';
+        setIsLoggedIn(status);
+        setRole(status ? localStorage.getItem('role') : null);
+    };
+
+    useEffect(() => {
+        updateAuth();
+        window.addEventListener('storage', updateAuth);
+        window.addEventListener('authChanged', updateAuth);
+        return () => {
+            window.removeEventListener('storage', updateAuth);
+            window.removeEventListener('authChanged', updateAuth);
+        };
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            await API.get('/auth/logout');
+            localStorage.clear();
+            window.dispatchEvent(new Event('authChanged'));
+            alert('Logged out!');
+            navigate('/signin');
+        } catch (err) {
+            alert('Logout failed');
+        }
+    };
+
     return (
         <nav className="navbar">
-            <div className="navbar-title">🎉 Event Manager</div>
+            <div className="navbar-left">
+                <img
+                    src="https://www.gla.ac.in/icmme2023/DATA/logo/gla.jpeg"
+                    alt="GLA Logo"
+                    className="gla-logo"
+                />
+                <span className="navbar-title">GLA Event Manager</span>
+            </div>
+
             <div className="navbar-links">
                 <Link to="/">Home</Link>
-                <Link to="/create">Create Event</Link>
-                <Link to="/events">View Events</Link>
-                <Link to="/signup">Signup</Link>
-                <Link to="/signin">Signin</Link>
+
+                {isLoggedIn && role === 'admin' && (
+                    <>
+                        <Link to="/create">Create Event</Link>
+                        <Link to="/events">View Events</Link>
+                    </>
+                )}
+
+                {isLoggedIn && role === 'user' && <Link to="/myevents">My Events</Link>}
+
+                {!isLoggedIn && (
+                    <>
+                        <Link to="/signup">Signup</Link>
+                        <Link to="/signin">Signin</Link>
+                    </>
+                )}
+
+                {isLoggedIn && (
+                    <button className="logout-button" onClick={handleLogout}>
+                        Logout
+                    </button>
+                )}
             </div>
         </nav>
     );

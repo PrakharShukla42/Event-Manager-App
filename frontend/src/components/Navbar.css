@@ -1,6 +1,15 @@
+:root {
+    --gla-green: #0b612c;
+    --gla-gold: #c39953;
+    --gla-dark: #1e1e1e;
+    --gla-white: #ffffff;
+    --gla-delete: #b30000;
+    --gla-delete-hover: #990000;
+}
+
 .navbar {
     width: 100%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
     padding: 1rem 2rem;
     display: flex;
@@ -12,29 +21,90 @@
     right: 0;
     z-index: 999;
     box-sizing: border-box;
+    color: var(--gla-white);
 }
 
-/* Navbar Title */
+/* Left: Logo and Title */
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.gla-logo {
+    height: 40px;
+    margin-right: 12px;
+    border-radius: 6px;
+    background-color: #fff;
+    padding: 2px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Title */
 .navbar-title {
     font-size: 1.4rem;
     font-weight: bold;
-    color: #ffd700;
+    color: var(--gla-gold);
+    white-space: nowrap;
 }
 
-/* Navbar Links */
+/* Links */
 .navbar-links {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .navbar-links a {
     margin-left: 1rem;
-    color: #fff;
+    color: var(--gla-white);
     text-decoration: none;
     font-weight: 500;
-    transition: color 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
 .navbar-links a:hover {
-    color: #ffd700;
+    transform: scale(1.1);
+    color: var(--gla-gold);
+}
+
+/* Logout Button */
+.logout-button {
+    margin-left: 1rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--gla-gold);
+    color: var(--gla-dark);
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.logout-button:hover {
+    transform: scale(1.1);
+    background: #b58a47;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .navbar-left {
+        margin-bottom: 0.5rem;
+    }
+
+    .navbar-links {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .navbar-links a,
+    .logout-button {
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
 }

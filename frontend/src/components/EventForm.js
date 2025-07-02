@@ -18,7 +18,8 @@ export default function EventForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await API.post('/events/create', form);
+            const creator = localStorage.getItem('userId');
+            await API.post('/events/create', { ...form, creator });
             alert('Event Created!');
             setForm({
                 title: '',

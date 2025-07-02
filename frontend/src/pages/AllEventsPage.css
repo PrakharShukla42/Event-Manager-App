@@ -1,0 +1,62 @@
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.event-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease;
+    border: 1px solid #f0f0f0;
+}
+
+.event-card:hover {
+    transform: scale(1.03);
+    /* Removed background color change */
+}
+
+.event-card h3 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.event-card p {
+    margin: 6px 0;
+    color: #444;
+    font-size: 0.95rem;
+}
+
+/* 👤 Created By style */
+.created-by {
+    font-style: italic;
+    color: #777;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+/* 🗑️ Delete button style */
+.delete-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+}
+
+.delete-btn:hover {
+    background-color: #c0392b;
+}
