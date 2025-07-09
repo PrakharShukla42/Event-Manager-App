@@ -1,82 +1,116 @@
 const express = require('express');
-const Event = require('../models/Event');
-
 const router = express.Router();
+const Event = require('../models/Event');
+const { ensureAuthenticated, ensureAdmin } = require('../config/passport');
 
-// Create Event
-router.post('/create', async (req, res) => {
+
+// ✅ Create Event (Pending approval if not admin)
+router.post('/create', ensureAuthenticated, async (req, res) => {
     try {
-        const { title, description, location, date, time, category, creator } = req.body;
-        const newEvent = new Event({ title, description, location, date, time, category, creator });
-        await newEvent.save();
-        res.status(201).json(newEvent);
+        const { title, description, location, date, time, category } = req.body;
+
+        const event = new Event({
+            title,
+            description,
+            location,
+            date,
+            time,
+            category,
+            creator: req.user._id,
+            approved: req.user.role === 'admin'
+        });
+
+        await event.save();
+        res.status(201).json(event);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 });
 
-// Get All Events (with creator info)
-router.get('/', async (req, res) => {
+// ✅ Approve Event (Admin only)
+router.post('/approve/:id', ensureAuthenticated, ensureAdmin, async (req, res) => {
     try {
-        const events = await Event.find()
-            .sort({ date: 1 })
-            .populate('creator', 'username email');
-        res.status(200).json(events);
+        const event = await Event.findById(req.params.id);
+        if (!event) return res.status(404).json({ error: 'Event not found' });
+
+        event.approved = true;
+        await event.save();
+
+        res.json({ message: 'Event approved successfully', event });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: 'Approval failed' });
     }
 });
 
-// Get Events by User
-router.get('/myevents/:userId', async (req, res) => {
+// ✅ Get All Events (Admins see all, users see only approved)
+router.get('/', ensureAuthenticated, async (req, res) => {
     try {
-        const events = await Event.find({ creator: req.params.userId }).sort({ date: 1 });
+        const query = req.user.role === 'admin' ? {} : { approved: true };
+        const events = await Event.find(query)
+            .populate('creator', 'username email')
+            .sort({ date: 1 });
+
         res.json(events);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Get Event by ID
-router.get('/:id', async (req, res) => {
+// ✅ Get My Events (Only events created by current user)
+router.get('/myevents', ensureAuthenticated, async (req, res) => {
     try {
-        const event = await Event.findById(req.params.id);
-        if (!event) return res.status(404).json({ error: 'Event not found' });
-        res.json(event);
+        const events = await Event.find({ creator: req.user._id })
+            .populate('rsvps.userId', 'username email')
+            .sort({ date: 1 });
+
+        res.json(events);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
-// RSVP Handler
-router.post('/rsvp/:id', async (req, res) => {
-    const { email, status } = req.body;
+// ✅ RSVP to Event
+router.post('/rsvp/:id', ensureAuthenticated, async (req, res) => {
+    const { status } = req.body;
+    const valid = ['attending', 'maybe', 'declined'];
+
+    if (!valid.includes(status)) {
+        return res.status(400).json({ error: 'Invalid RSVP option' });
+    }
+
     try {
         const event = await Event.findById(req.params.id);
         if (!event) return res.status(404).json({ error: 'Event not found' });
 
-        event.attendees = event.attendees.filter(e => e !== email);
-        event.maybe = event.maybe.filter(e => e !== email);
-        event.declined = event.declined.filter(e => e !== email);
+        // Remove previous RSVP if exists
+        event.rsvps = event.rsvps.filter(
+            r => r.userId.toString() !== req.user._id.toString()
+        );
 
-        if (status === 'attending') event.attendees.push(email);
-        else if (status === 'maybe') event.maybe.push(email);
-        else if (status === 'declined') event.declined.push(email);
-        else return res.status(400).json({ error: 'Invalid status' });
-
+        event.rsvps.push({ userId: req.user._id, status });
         await event.save();
-        res.json({ message: 'RSVP updated', event });
+
+        res.json({ message: 'RSVP submitted', event });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
-// Delete Event by ID
-router.delete('/:id', async (req, res) => {
+// ✅ Delete Event (Admin or event creator)
+router.delete('/:id', ensureAuthenticated, async (req, res) => {
     try {
-        const deleted = await Event.findByIdAndDelete(req.params.id);
-        if (!deleted) return res.status(404).json({ error: 'Event not found' });
-        res.json({ message: 'Event deleted successfully' });
+        const event = await Event.findById(req.params.id);
+        if (!event) return res.status(404).json({ error: 'Event not found' });
+
+        if (
+            req.user.role !== 'admin' &&
+            event.creator.toString() !== req.user._id.toString()
+        ) {
+            return res.status(403).json({ error: 'Not authorized to delete this event' });
+        }
+
+        await Event.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Event deleted' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
