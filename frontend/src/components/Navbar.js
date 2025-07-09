@@ -38,13 +38,18 @@ export default function Navbar() {
 
     return (
         <nav className="navbar">
-            <div className="navbar-left">
+            <div className="navbar-title">
                 <img
                     src="https://www.gla.ac.in/icmme2023/DATA/logo/gla.jpeg"
-                    alt="GLA Logo"
-                    className="gla-logo"
+                    alt="GLA University Logo"
+                    style={{
+                        height: '45px',
+                        verticalAlign: 'middle',
+                        borderRadius: '8px',
+                        marginRight: '12px',
+                    }}
                 />
-                <span className="navbar-title">GLA Event Manager</span>
+                GLA Event Manager
             </div>
 
             <div className="navbar-links">
@@ -53,18 +58,20 @@ export default function Navbar() {
                 {isLoggedIn && role === 'admin' && (
                     <>
                         <Link to="/create">Create Event</Link>
-                        <Link to="/events">View Events</Link>
+                        <Link to="/events">All Events</Link>
+                        <Link to="/admin/rsvp-summary">RSVP Summary</Link>
                     </>
                 )}
 
-                {isLoggedIn && role === 'user' && <Link to="/myevents">My Events</Link>}
-
-                {!isLoggedIn && (
+                {isLoggedIn && role === 'user' && (
                     <>
-                        <Link to="/signup">Signup</Link>
-                        <Link to="/signin">Signin</Link>
+                        <Link to="/create">Create Event</Link>
+                        <Link to="/myevents">My Events</Link>
                     </>
                 )}
+
+                {!isLoggedIn && <Link to="/signin">Signin</Link>}
+                {!isLoggedIn && <Link to="/signup">Signup</Link>}
 
                 {isLoggedIn && (
                     <button className="logout-button" onClick={handleLogout}>
