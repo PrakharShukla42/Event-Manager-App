@@ -24,12 +24,11 @@ router.post('/signin', passport.authenticate('local'), (req, res) => {
   res.json({ message: 'Signed in', user: req.user });
 });
 
-router.get('/logout', (req, res, next) => {
-  req.logout(function (err) {
-    if (err) return next(err);
-    res.json({ message: 'Logged out successfully' });
+router.get('/logout', (req, res) => {
+  req.logout(err => {
+    if (err) return res.status(500).json({ error: 'Logout failed' });
+    res.json({ message: 'Logged out' });
   });
 });
-
 
 module.exports = router;
