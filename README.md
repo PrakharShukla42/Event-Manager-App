@@ -38,3 +38,14 @@ Before you begin, make sure you have:
 ```env
 MONGO_URI=your_mongo_connection_string
 SESSION_SECRET=your_secret_key
+
+```
+## 🛠️ Installation & Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/yourusername/event-manager-app.git
+cd event-manager-app
+
+
