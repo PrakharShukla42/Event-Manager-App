@@ -70,9 +70,6 @@ export default function Navbar() {
                     </>
                 )}
 
-                {!isLoggedIn && <Link to="/signin">Signin</Link>}
-                {!isLoggedIn && <Link to="/signup">Signup</Link>}
-
                 {isLoggedIn && (
                     <button className="logout-button" onClick={handleLogout}>
                         Logout

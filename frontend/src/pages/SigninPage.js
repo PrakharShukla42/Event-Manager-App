@@ -1,37 +1,51 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/api';
-import { useNavigate } from 'react-router-dom';
+import './Auth.css';
 
 export default function SigninPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [formData, setFormData] = useState({ email: '', password: '' });
     const navigate = useNavigate();
 
-    const handleSubmit = async e => {
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await API.post('/auth/signin', { email, password });
-
+            const res = await API.post('/auth/signin', formData);
             localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userId', res.data.user._id);
             localStorage.setItem('role', res.data.user.role);
+            localStorage.setItem('userId', res.data.user._id);
             window.dispatchEvent(new Event('authChanged'));
-
-            alert(`Welcome back, ${res.data.user.username}`);
+            alert('Signin successful!');
             navigate('/');
         } catch (err) {
-            alert('Login failed');
+            alert('Signin failed. Try again.');
         }
     };
 
     return (
-        <div className="container">
-            <h2>Signin</h2>
-            <form onSubmit={handleSubmit}>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" required />
-                <button type="submit">Signin</button>
-            </form>
+        <div className="auth-container">
+            <div className="auth-left">
+                <img className="auth-image" src="https://www.gla.ac.in/icmme2023/DATA/logo/gla.jpeg" alt="GLA Logo" />
+                <h2>Welcome Back!</h2>
+                <p>Signin to GLA University’s Event Portal to access and manage your events efficiently.</p>
+            </div>
+            <div className="auth-right">
+                <div className="auth-form">
+                    <h2>Signin</h2>
+                    <form onSubmit={handleSubmit}>
+                        <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+                        <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
+                        <button type="submit">Signin</button>
+                    </form>
+                    <p className="auth-link">
+                        New user? <Link to="/signup">Signup here</Link>
+                    </p>
+                </div>
+            </div>
         </div>
     );
 }
