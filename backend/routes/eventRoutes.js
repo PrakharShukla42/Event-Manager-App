@@ -96,6 +96,20 @@ router.post('/rsvp/:id', ensureAuthenticated, async (req, res) => {
     }
 });
 
+// ✅ Get All Events for Admin RSVP Dashboard
+router.get('/admin/all', ensureAuthenticated, ensureAdmin, async (req, res) => {
+    try {
+        const events = await Event.find({})
+            .populate('creator', 'username email')
+            .populate('rsvps.userId', 'username email')
+            .sort({ date: 1 });
+        res.json(events);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 // ✅ Delete Event (Admin or event creator)
 router.delete('/:id', ensureAuthenticated, async (req, res) => {
     try {

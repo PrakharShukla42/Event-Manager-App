@@ -1,3 +1,4 @@
+// src/pages/MyEventsPage.js
 import { useEffect, useState } from 'react';
 import API from '../api/api';
 
@@ -19,6 +20,7 @@ export default function MyEventsPage() {
   return (
     <div className="container">
       <h2>My Events</h2>
+
       {events.length === 0 && <p>You have not created any events yet.</p>}
 
       {events.map(event => (
@@ -26,10 +28,10 @@ export default function MyEventsPage() {
           <h3>{event.title}</h3>
           <p>{event.description}</p>
           <p><strong>Location:</strong> {event.location}</p>
-          <p><strong>Date:</strong> {new Date(event.date).toDateString()}</p>
+          <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
           <p><strong>Time:</strong> {event.time}</p>
           <p><strong>Category:</strong> {event.category}</p>
-          <p><strong>Status:</strong> {event.approved ? 'Approved ✅' : 'Pending ⏳'}</p>
+          <p><strong>Status:</strong> {event.approved ? '✅ Approved' : '⏳ Pending'}</p>
 
           {event.rsvps && event.rsvps.length > 0 && (
             <div style={{ marginTop: '1rem' }}>
